@@ -12,12 +12,12 @@ function startServer() {
 	});
 	app.get("/global.css", (req, res) => {
 		res.writeHead(200, {'Content-Type': 'text/css'});
-		res.write(fs.readFileSync("./index.css","utf-8"));
+		res.write(fs.readFileSync("./index.css", "utf-8"));
 		res.end();
 	});
 	app.get("/script.js", (req, res) => {
 		res.writeHead(200, {'Content-Type': 'text/javascript'});
-		res.write(fs.readFileSync("./index.css","utf-8"));
+		res.write(fs.readFileSync("./index.css", "utf-8"));
 		res.end();
 	});
 	app.listen(port, () => {
