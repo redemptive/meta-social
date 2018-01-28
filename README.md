@@ -1,4 +1,5 @@
-# Title: meta-social
+## Title
+# meta-social
 
 ## Description
 A social network implementation in node.js
@@ -17,4 +18,5 @@ Front End
 - CSS
   - Bootstrap
 
-
+## Installation and Usage
+Clone the repo and run npm install. Then run node index from the root directory
