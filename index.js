@@ -6,12 +6,20 @@ app.set("view engine", "ejs");
 const port = 3000;
 const mongoClient = require('mongodb').MongoClient;
 const url = "mongodb://localhost:27017/meta-social";
+let posts;
 
-mongoClient.connect(url, function(err, db) {
-  if (err) throw err;
-  console.log("Database created!");
-  db.close();
-});
+function connectToDB(dbUrl) {
+	mongoClient.connect(dbUrl, function(err, db) {
+	  if (err) console.log(err);
+	  console.log("Database created!");
+	  var dbo = db.db("mydb");
+	  dbo.createCollection("customers", function(err, res) {
+	    if (err) console.log(err);
+	    console.log("Collection created!");
+	    db.close();
+	  });
+	});
+}
 
 function startServer() {
 	app.get("/", (req, res) => {
@@ -19,13 +27,15 @@ function startServer() {
 		});
 	});
 	app.get("/global.css", (req, res) => {
+		console.log("Recieved request for global.css");
 		res.writeHead(200, {'Content-Type': 'text/css'});
-		res.write(fs.readFileSync("./index.css", "utf-8"));
+		res.write(fs.readFileSync("global.css", "utf-8"));
 		res.end();
 	});
 	app.get("/script.js", (req, res) => {
+		console.log("Recieved request for script.js");
 		res.writeHead(200, {'Content-Type': 'text/javascript'});
-		res.write(fs.readFileSync("./index.css", "utf-8"));
+		res.write(fs.readFileSync("script.js", "utf-8"));
 		res.end();
 	});
 	app.listen(port, () => {
@@ -33,4 +43,5 @@ function startServer() {
 	});
 }
 
+connectToDB(url);
 startServer();
