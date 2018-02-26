@@ -1,0 +1,10 @@
+body {
+	background-color: #DCA475;
+}
+
+.user-info, .new-user-form {
+	margin: 10px;
+	padding: 10px;
+	background-color: #854A1A;
+	border-radius: 10px;
+}

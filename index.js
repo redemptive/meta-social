@@ -1,14 +1,21 @@
+//Imports
 const ejs = require("ejs");
 const fs = require("fs");
 const express = require("express");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const app = express();
+const bodyParser = require('body-parser');
+const mongoClient = require('mongodb').MongoClient;
+
+//App configuration
 app.set("view engine", "ejs");
 app.use(express.static("static"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+//Variables
 const port = 3000;
-const mongoClient = require('mongodb').MongoClient;
-const url = "mongodb://localhost:27017/meta-social";
 let posts;
 
 async function databaseSetup() {
@@ -16,7 +23,7 @@ async function databaseSetup() {
 	if (process.env.DB_HOST) {
 		console.log(`Waiting for connection from ${process.env.DB_HOST}`);
 		//Connect to the DB if the env variable is there
-		const connection = await mongoose.createConnection(process.env.DB_HOST + "/lab-db").catch((err) => {
+		const connection = await mongoose.createConnection(process.env.DB_HOST + "/meta-social-db").catch((err) => {
 			if (err) {
 				//Could not establish a connection
 				console.log(`Could not connect to ${process.env.DB_HOST}, please check database IP address`);
@@ -26,13 +33,19 @@ async function databaseSetup() {
 			}
 		});
 		//Connection established
-		//Set the schema of the database
-		const schema = new Schema({
+		//Set the schemas of the database
+		const userSchema = new Schema({
+			_id: Schema.Types.ObjectId,
 			userFirstName: String,
 			userLastName: String
 		});
+		const postSchema = new Schema({
+			user: { type: Schema.Types.ObjectId, ref: 'User' },
+			postContent: String
+		});
 		//Set up the model for communicating with the database
-		Result = connection.model('Result', schema);
+		User = connection.model('User', userSchema);
+		Post = connection.model('Post', postSchema);
 		console.log(`Connected sucessfully to ${process.env.DB_HOST}/meta-social-db`);
 		//Now start the server
 		console.log("Starting server...");
@@ -48,10 +61,63 @@ async function databaseSetup() {
 
 function startServer() {
 	app.get("/", (req, res) => {
-		Result.find((err, results) => {
+		User.find((err, users) => {
 			if (err) return console.log(err);
-			res.render("index", {results: results});
+			res.render("index", {users: users});
 		});
+	});
+	app.get("/users", (req, res) => {
+		User.find((err, users) => {
+			if (err) return console.log(err);
+			res.render("users", {users: users});
+		});
+	});
+	app.get("/posts", (req, res) => {
+		Post.find((err, posts) => {
+			console.log(posts);
+			Post.populate(posts, 'user', (err, posts) => {
+				console.log(posts);
+				res.render("posts", {posts: posts});
+			});			
+		});
+	});
+	app.post("/addPost", (req, res) => {
+		//Post route for adding a result to the database
+		console.log(`Post request recieved for ${req.url} from ${req.connection.remoteAddress}`);
+		//Get current date
+		User.findOne({userFirstName: req.body.userFirstName, userLastName: req.body.userLastName}, (err, user) => {
+			if (err) return console.log(err);
+			//Create new Post object with the params
+			let newPost = Post({
+				user: user._id,
+				postContent: req.body.postContent
+			});
+			newPost.save((err) => {
+				if (err) return console.log(err);
+			});
+		});
+		let currentDate = new Date();
+		//Save the new object to the db
+		res.write("Success! Added to database");
+ 		res.end();
+ 		console.log(`Sent incoming data to db at ${process.env.DB_HOST}`);
+	});
+	app.post("/addUser", (req, res) => {
+		//Post route for adding a result to the database
+		console.log(`Post request recieved for ${req.url} from ${req.connection.remoteAddress}`);
+		//Get current date
+		let currentDate = new Date();
+		//Create new Result object with the params
+		let newUser = User({
+			_id: new mongoose.Types.ObjectId(),
+			userFirstName: req.body.userFirstName,
+			userLastName: req.body.userLastName
+		});
+		//Save the new object to the db
+		newUser.save();
+		res.write("Success! Added to database");
+ 		res.end();
+ 		console.log(`Sent incoming data to db at ${process.env.DB_HOST}`);
 	});
 	app.listen(port, () => {
 		console.log("Server started on port " + port);
