@@ -9,14 +9,18 @@
 	<div class="container-fluid">
 		<h1>Posts</h1>
 		<form action="/addPost" method="post">
-			<input type="text" name="userFirstName" placeholder="Last Name">
-			<input type="text" name="userLastName" placeholder="First Name">
+			<select name="userId">
+				<% for (var i in users) { %>
+				<option value="<%= users[i]._id %>"><%= `${users[i].userFirstName} ${users[i].userLastName}` %></option>
+				<% } %>
+			</select>
 			<input type="textarea" name="postContent" placeholder="Say Something">
 			<input type="submit">
 		</form>
 		<% for(var i in posts) { %>
 			<div class="post">
-				<h2><%= `${posts[i].user.userFirstName} ${posts[i].postContent}` %></h2>
+				<h2><%= `${posts[i].user.userFirstName} ${posts[i].user.userLastName}` %></h2>
+				<p><%= `${posts[i].postContent}` %></p>
 			</div>
 		<% } %>
 	</div>

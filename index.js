@@ -7,6 +7,7 @@ const Schema = mongoose.Schema;
 const app = express();
 const bodyParser = require('body-parser');
 const mongoClient = require('mongodb').MongoClient;
+const nodemon = require("nodemon");
 
 //App configuration
 app.set("view engine", "ejs");
@@ -77,29 +78,27 @@ function startServer() {
 			console.log(posts);
 			Post.populate(posts, 'user', (err, posts) => {
 				console.log(posts);
-				res.render("posts", {posts: posts});
+				User.find((err, users) => {
+					res.render("posts", {posts: posts, users: users});
+				});
 			});			
 		});
 	});
 	app.post("/addPost", (req, res) => {
 		//Post route for adding a result to the database
 		console.log(`Post request recieved for ${req.url} from ${req.connection.remoteAddress}`);
-		//Get current date
-		User.findOne({userFirstName: req.body.userFirstName, userLastName: req.body.userLastName}, (err, user) => {
-			if (err) return console.log(err);
-			//Create new Post object with the params
-			let newPost = Post({
-				user: user._id,
-				postContent: req.body.postContent
-			});
-			newPost.save((err) => {
-				if (err) return console.log(err);
-			});
+		//Create new Post object with the params
+		let newPost = Post({
+			user: req.body.userId,
+			postContent: req.body.postContent
 		});
-		let currentDate = new Date();
 		//Save the new object to the db
-		res.write("Success! Added to database");
- 		res.end();
+		newPost.save((err) => {
+			if (err) return console.log(err);
+		});
+		//Get current date
+		let currentDate = new Date();
+		res.redirect("/posts");
  		console.log(`Sent incoming data to db at ${process.env.DB_HOST}`);
 	});
 	app.post("/addUser", (req, res) => {
@@ -115,8 +114,7 @@ function startServer() {
 		});
 		//Save the new object to the db
 		newUser.save();
-		res.write("Success! Added to database");
- 		res.end();
+		res.redirect("/users");
  		console.log(`Sent incoming data to db at ${process.env.DB_HOST}`);
 	});
 	app.listen(port, () => {

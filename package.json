@@ -17,11 +17,15 @@
   },
   "homepage": "https://github.com/redemptive/meta-social#readme",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
+    "connect-mongo": "^2.0.1",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "express-session": "^1.15.6",
     "fs": "0.0.1-security",
     "mongodb": "^3.0.1",
-    "mongoose": "^5.0.7"
+    "mongoose": "^5.0.7",
+    "nodemon": "^1.15.1"
   }
 }
