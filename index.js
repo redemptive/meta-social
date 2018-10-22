@@ -88,7 +88,7 @@ function startServer() {
 			console.log("Error loading posts");
 		});		
 	});
-	app.post("/addPost", (req, res) => {
+	app.post("/post", (req, res) => {
 		//Post route for adding a result to the database
 		console.log(`Post request recieved for ${req.url} from ${req.connection.remoteAddress}`);
 		//Create new Post object with the params
@@ -105,7 +105,7 @@ function startServer() {
 		res.redirect("/posts");
  		console.log(`Sent incoming data to db at ${process.env.DB_HOST}`);
 	});
-	app.post("/addUser", (req, res) => {
+	app.post("/user", (req, res) => {
 		//Post route for adding a result to the database
 		console.log(`Post request recieved for ${req.url} from ${req.connection.remoteAddress}`);
 		//Get current date
