@@ -6,8 +6,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const app = express();
 const bodyParser = require('body-parser');
-const mongoClient = require('mongodb').MongoClient;
-const nodemon = require("nodemon");
 
 //App configuration
 app.set("view engine", "ejs");
@@ -24,8 +22,28 @@ async function databaseSetup() {
 	if (process.env.DB_HOST) {
 		console.log(`Waiting for connection from ${process.env.DB_HOST}`);
 		//Connect to the DB if the env variable is there
-		const connection = await mongoose.createConnection(process.env.DB_HOST + "/meta-social-db").catch((err) => {
-			if (err) {
+		await mongoose.createConnection(process.env.DB_HOST + "/meta-social-db").then((result) => {
+			//Connection established
+			const connection = result;
+			//Set the schemas of the database
+			const userSchema = new Schema({
+				_id: Schema.Types.ObjectId,
+				userFirstName: String,
+				userLastName: String
+			});
+			const postSchema = new Schema({
+				user: { type: Schema.Types.ObjectId, ref: 'User' },
+				postContent: String
+			});
+			//Set up the model for communicating with the database
+			User = connection.model('User', userSchema);
+			Post = connection.model('Post', postSchema);
+			console.log(`Connected sucessfully to ${process.env.DB_HOST}/meta-social-db`);
+			//Now start the server
+			console.log("Starting server...");
+			startServer();
+		}, (error) => {
+			if (error) {
 				//Could not establish a connection
 				console.log(`Could not connect to ${process.env.DB_HOST}, please check database IP address`);
 				console.log("Then run 'export DB_HOST=mongodb://[database ip]'");
@@ -33,24 +51,6 @@ async function databaseSetup() {
 				process.exit();
 			}
 		});
-		//Connection established
-		//Set the schemas of the database
-		const userSchema = new Schema({
-			_id: Schema.Types.ObjectId,
-			userFirstName: String,
-			userLastName: String
-		});
-		const postSchema = new Schema({
-			user: { type: Schema.Types.ObjectId, ref: 'User' },
-			postContent: String
-		});
-		//Set up the model for communicating with the database
-		User = connection.model('User', userSchema);
-		Post = connection.model('Post', postSchema);
-		console.log(`Connected sucessfully to ${process.env.DB_HOST}/meta-social-db`);
-		//Now start the server
-		console.log("Starting server...");
-		startServer();
 	} else {
 		//User has no DB_HOST environment variable set for the db ip
 		console.log("Oh no... no DB_HOST environment variable set. Cannot connect to DB.");
@@ -62,27 +62,31 @@ async function databaseSetup() {
 
 function startServer() {
 	app.get("/", (req, res) => {
-		User.find((err, users) => {
-			if (err) return console.log(err);
+		User.find().then((users) => {
 			res.render("index", {users: users});
+		}, (error) => {
+			console.log(error);
 		});
 	});
 	app.get("/users", (req, res) => {
-		User.find((err, users) => {
-			if (err) return console.log(err);
+		User.find().then((users) => {
 			res.render("users", {users: users});
+		}, (error) => {
+			console.log(error);
 		});
 	});
 	app.get("/posts", (req, res) => {
-		Post.find((err, posts) => {
-			console.log(posts);
-			Post.populate(posts, 'user', (err, posts) => {
-				console.log(posts);
-				User.find((err, users) => {
+		Post.find().then((posts) => {
+			Post.populate(posts, 'user').then((posts) => {
+				User.find().then((users) => {
 					res.render("posts", {posts: posts, users: users});
+				}, (error) => {
+					console.log(`Error loading users: ${error}`);
 				});
-			});			
-		});
+			});	
+		}, (error) => {
+			console.log("Error loading posts");
+		});		
 	});
 	app.post("/addPost", (req, res) => {
 		//Post route for adding a result to the database
