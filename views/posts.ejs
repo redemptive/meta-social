@@ -8,7 +8,7 @@
 	<% include partials/navbar %>
 	<div class="container-fluid">
 		<h1>Posts</h1>
-		<form action="/post" method="post">
+		<form action="/posts" method="post">
 			<select name="userId">
 				<% for (var i in users) { %>
 				<option value="<%= users[i]._id %>"><%= `${users[i].userFirstName} ${users[i].userLastName}` %></option>
