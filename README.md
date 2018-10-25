@@ -1,4 +1,3 @@
-## Title
 # meta-social
 
 ## Description
@@ -7,9 +6,10 @@ A social network implementation in node.js
 ## Technologies
 Back End
 - Node.js
-  - FS
   - Express
   - Ejs
+  - Mongoose
+- MongoDB
 
 Front End
 - HTML
