@@ -12,13 +12,11 @@ app.use(express.static("static"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Import models
-const User = require('./models/user');
-const Post = require('./models/post');
-
 // Import routes
 const usersRouter = require('./routes/users');
 const postsRouter = require('./routes/posts');
+const indexRouter = require('./routes/index');
+app.use('/', indexRouter);
 app.use('/posts', postsRouter);
 app.use('/users', usersRouter);
 
@@ -58,14 +56,6 @@ async function databaseSetup() {
 }
 
 function startServer() {
-	app.get("/", (req, res) => {
-		User.find().then((users) => {
-			res.render("index", {users: users});
-		}, (error) => {
-			console.log(error);
-		});
-	});
-
 	app.listen(port, () => {
 		console.log("Server started on port " + port);
 	});
