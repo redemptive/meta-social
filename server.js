@@ -26,6 +26,7 @@ const port = 3000;
 async function databaseSetup() {
 	//Check for the DB_HOST environment variable
 	if (process.env.DB_HOST) {
+		
 		console.log(`Waiting for connection from ${process.env.DB_HOST}`);
 		//Connect to the DB if the env variable is there
 		await mongoose.connect(process.env.DB_HOST + "/meta-social-db").then((result) => {
