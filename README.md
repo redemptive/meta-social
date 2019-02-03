@@ -18,7 +18,18 @@ The front end uses HTML5, CSS and Javascript\Jquery on the front end.
 First of all clone this repo down
 
 ### Docker-Compose (Linux containers)
-All you need to do here is `docker-compose up`! This will pull down a nodejs 10 container and build with the Dockerfile. I have already made a mongo-data folder which is used as persistant storage for the mongodb container which is also pulled from the docker registry.
+All you need to do here is `docker-compose up`! This will build the application and infrastructure like so:
+
+localhost:8080 <-> Nginx Proxy <-> Web Server <-> mongoDB
+
+#### Nginx Proxy
+This Nginx container wil act as a reverse proxy, forwarding requests from the exposed localhost port 8080 to the private web container port 3000
+
+#### Web Server
+This nodejs 10 container serves on private port 3000 and contains the application code.
+
+#### MongoDB
+This is a mongodb container which will serve on the standard port 27017. The project folder mongo-data will be mounted by the container for persistant storage at /data/db.
 
 ### Local
 Clone the repo and run `npm install`. Please also have a local, cloud or whatever mongodb instance running.

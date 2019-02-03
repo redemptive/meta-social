@@ -1,12 +1,21 @@
 version: '3'
 services:
+
+  nginx: 
+    build: ./nginx
+    ports:
+      - 8080:8080
+    depends_on:
+      - "web"
+
   web:
     build: .
-    ports:
-     - "8080:3000"
     environment:
       DB_HOST: mongodb://mongodb:27017
     depends_on:
       - "mongodb"
+
   mongodb:
     image: "mongo:4.1.7-xenial"
+    volumes:
+      - ./mongo-data:/data/db

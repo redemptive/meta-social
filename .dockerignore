@@ -1,1 +1,8 @@
 node_modules
+nginx
+docker-compose.yml
+Dockerfile
+mongo-data
+.dockerignore
+.git
+.gitignore

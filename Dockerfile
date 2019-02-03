@@ -1,10 +1,12 @@
 FROM node:10
 
-COPY package*.json ./
+COPY package*.json ./app/
+
+WORKDIR /app
 
 RUN npm install
 
-COPY . .
+COPY . /app
 
 EXPOSE 3000
 
